@@ -1,0 +1,50 @@
+library(lavaan)
+library(semPlot)
+library(dplyr)
+
+
+data <- read.csv("E:/a_msc_SEM1/mva/archive (3)/apple_quality.csv")
+
+
+if("A_id" %in% colnames(data)) data$A_id <- NULL
+
+
+data$Quality <- ifelse(data$Quality == "good", 1, 0)
+
+# Path SEM model (no latent variables)
+model <- '
+
+# relationships
+Sweetness ~ Size
+Juiciness ~ Size + Crunchiness
+Acidity ~ Size
+
+Quality ~ Size + Sweetness + Juiciness + Acidity
+
+
+Size ~~ Crunchiness
+'
+
+fit <- sem(model, data=data)
+
+
+summary(fit, standardized=TRUE, fit.measures=TRUE)
+
+semPaths(fit,
+         what="std",
+         layout="tree",
+         style="ram",
+         edge.label.cex=1.2,
+         sizeMan=7,
+         residuals=FALSE,
+         intercepts=FALSE,
+         nCharNodes=0,
+         posCol="darkgreen",
+         negCol="red",
+         edge.width=2,
+         weighted=TRUE,
+         fade=FALSE,
+         rotation=2)
+
+
+
