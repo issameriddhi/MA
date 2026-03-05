@@ -1,0 +1,44 @@
+Conjoint analysis was conducted to evaluate how different apple attributes influence perceived apple quality. The dataset was cleaned by removing the ID column, and continuous variables such as Size, Weight, Sweetness, Crunchiness, Juiciness, Ripeness, and Acidity were converted into categorical levels (Low, Medium, High). The dependent variable Quality was encoded numerically (1 = good, 0 = bad).
+
+The regression model used for conjoint estimation was statistically significant (F = 94.93, p < 0.001), indicating that the selected attributes significantly affect apple quality. The model explains about 25% of the variation in quality (R² = 0.2501, Adjusted R² = 0.2475), showing moderate explanatory power.
+
+Part-worth utilities indicate that higher levels of desirable sensory attributes such as Sweetness, Juiciness, Ripeness, and Size generally increase preference, while lower levels reduce preference.
+
+The relative importance of attributes is:
+
+Size – 18.85%
+
+Sweetness – 18.73%
+
+Juiciness – 15.83%
+
+Ripeness – 14.37%
+
+Weight – 11.86%
+
+Crunchiness – 10.49%
+
+Acidity – 9.87%
+
+This shows that Size and Sweetness are the most influential factors, while Acidity has the least impact on apple quality perception. The bar chart also confirms that size and sweetness contribute the most to consumer preference.
+
+The regression-based utility prediction identified the best apple profile as:
+
+High Size
+
+High Weight
+
+Medium Sweetness
+
+Medium Crunchiness
+
+Medium Juiciness
+
+Low Ripeness
+
+Low Acidity
+
+This configuration produced the highest predicted utility score of 1.27, indicating the most preferred apple profile.
+
+Final Conclusion
+Overall, apple quality perception is mainly influenced by size and sweetness, followed by juiciness and ripeness, while acidity and crunchiness have comparatively lower influence
