@@ -1,0 +1,69 @@
+library(conjoint)
+
+data <- read.csv("E:/a_msc_SEM1/mva/archive (3)/apple_quality.csv")
+
+str(data)
+head(data)
+
+if("A_id" %in% colnames(data)) data$A_id <- NULL
+
+data <- na.omit(data)
+
+data$Size        <- as.factor(cut(data$Size, 3, labels=c("Low","Medium","High")))
+data$Weight      <- as.factor(cut(data$Weight, 3, labels=c("Low","Medium","High")))
+data$Sweetness   <- as.factor(cut(data$Sweetness, 3, labels=c("Low","Medium","High")))
+data$Crunchiness <- as.factor(cut(data$Crunchiness, 3, labels=c("Low","Medium","High")))
+data$Juiciness   <- as.factor(cut(data$Juiciness, 3, labels=c("Low","Medium","High")))
+data$Ripeness    <- as.factor(cut(data$Ripeness, 3, labels=c("Low","Medium","High")))
+data$Acidity     <- as.factor(cut(as.numeric(data$Acidity), 3, labels=c("Low","Medium","High")))
+
+data$Quality <- ifelse(data$Quality == "good", 1, 0)
+
+attributes <- data[, c("Size","Weight","Sweetness",
+                       "Crunchiness","Juiciness",
+                       "Ripeness","Acidity")]
+
+plevel <- rep(c("Low","Medium","High"), 7)
+plevel_df <- data.frame(plevel)
+
+print(plevel_df)
+
+model <- Conjoint(
+  y = data$Quality,
+  x = attributes,
+  z = plevel_df
+)
+
+utilities <- caTotalUtilities(data$Quality, attributes)
+print(utilities)
+
+importance <- caImportance(data$Quality, attributes)
+print(importance)
+
+perc <- round((importance/sum(importance))*100,2)
+
+colors <- colorRampPalette(c("#00441B", "#2CA25F", "#A1D99B"))(length(importance))
+
+barplot(importance,
+        names.arg = c("Size","Weight","Sweetness","Crunchiness",
+                      "Juiciness","Ripeness","Acidity"),
+        main="Relative Importance of Apple Attributes",
+        ylab="Importance (%)",
+        col=colors,
+        border="black",
+        las=2,
+        cex.names=0.9)
+
+lm_model <- lm(Quality ~ Size + Weight + Sweetness +
+                 Crunchiness + Juiciness +
+                 Ripeness + Acidity,
+               data = data)
+
+summary(lm_model)
+
+data$Total_Utility <- predict(lm_model)
+
+best_index <- which.max(data$Total_Utility)
+
+print("Best Apple Profile:")
+print(data[best_index, ])
