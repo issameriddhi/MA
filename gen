@@ -1,0 +1,103 @@
+SEM
+
+library(lavaan)
+library(semPlot)
+library(dplyr)
+
+data <- read.csv("your_dataset.csv")
+
+data <- data %>% select(-matches("id|ID|Id"))
+
+if(is.character(data$Quality) | is.factor(data$Quality)){
+  data$Quality <- ifelse(data$Quality %in% c("good","Yes","1"),1,0)
+}
+
+numeric_vars <- names(data)[sapply(data, is.numeric)]
+
+predictors <- setdiff(numeric_vars,"Quality")
+
+model_paths <- paste0(predictors, " ~ ", predictors[1], collapse="\n")
+
+quality_path <- paste("Quality ~", paste(predictors, collapse=" + "))
+
+model <- paste(model_paths, quality_path, sep="\n")
+
+fit <- sem(model, data=data)
+
+summary(fit, standardized=TRUE, fit.measures=TRUE)
+
+semPaths(fit,
+         what="std",
+         layout="tree",
+         style="ram",
+         edge.label.cex=1.2,
+         sizeMan=7,
+         residuals=FALSE,
+         intercepts=FALSE,
+         nCharNodes=0,
+         posCol="darkgreen",
+         negCol="red",
+         edge.width=2,
+         weighted=TRUE,
+         fade=FALSE,
+         rotation=2)
+
+CONJOINT
+library(conjoint)
+library(dplyr)
+
+data <- read.csv("your_dataset.csv")
+
+data <- data %>% select(-matches("id|ID|Id"))
+
+if(is.character(data$Quality) | is.factor(data$Quality)){
+  data$Quality <- ifelse(data$Quality %in% c("good","Yes","1"),1,0)
+}
+
+data <- na.omit(data)
+
+numeric_vars <- names(data)[sapply(data, is.numeric)]
+
+attributes <- setdiff(numeric_vars,"Quality")
+
+for(i in attributes){
+  data[[i]] <- as.factor(cut(data[[i]],3,labels=c("Low","Medium","High")))
+}
+
+attributes_data <- data[,attributes]
+
+plevel <- rep(c("Low","Medium","High"), length(attributes))
+plevel_df <- data.frame(plevel)
+
+model <- Conjoint(
+  y=data$Quality,
+  x=attributes_data,
+  z=plevel_df
+)
+
+utilities <- caTotalUtilities(data$Quality, attributes_data)
+print(utilities)
+
+importance <- caImportance(data$Quality, attributes_data)
+print(importance)
+
+colors <- colorRampPalette(c("#00441B","#2CA25F","#A1D99B"))(length(importance))
+
+barplot(importance,
+        names.arg=attributes,
+        main="Relative Importance of Attributes",
+        ylab="Importance (%)",
+        col=colors,
+        border="black",
+        las=2)
+
+lm_model <- lm(Quality ~ ., data=data)
+
+summary(lm_model)
+
+data$Total_Utility <- predict(lm_model)
+
+best_index <- which.max(data$Total_Utility)
+
+print("Best Profile:")
+print(data[best_index,])
